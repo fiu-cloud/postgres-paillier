@@ -1,4 +1,4 @@
-FROM postgres:latest
+FROM postgres
 
 #Copy Resources
 ADD src/main/R/setup_library.R /root/setup_library.R
