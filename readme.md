@@ -4,7 +4,7 @@ Postgres UDF (using R / prl) to do floating point paillier encryption operations
 
 # Start Postgres & R
 ```
-docker run --name my-paillier  -e POSTGRES_PASSWORD=mysecret -p 5432:5432 -d postgres-paillier
+docker run --name my-paillier  -e POSTGRES_PASSWORD=mysecret -p 5432:5432 -d mwalker009/postgres-paillier
 ```
 
 You can now connect PgpAdmin or similar to you localhost running paillier postgres (port 5432). Try the example below
