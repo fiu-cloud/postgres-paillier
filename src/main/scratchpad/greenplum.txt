@@ -1,0 +1,3 @@
+docker run -i -d -p 5432:5433 <image>
+docker start musing_meitner
+docker exec -i -t musing_meitner /bin/bash
