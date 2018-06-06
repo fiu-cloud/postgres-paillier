@@ -1,5 +1,4 @@
 run/*
-
 ### JetBrains template
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio
 
@@ -15,7 +14,6 @@ run/*
 # .idea/dictionaries
 
 # Sensitive or high-churn files:
-/officespark-analytics/src/analytics-libs
 # .idea/dataSources.ids
 # .idea/dataSources.xml
 # .idea/sqlDataSources.xml

@@ -1,3 +1,22 @@
+https://gpdb.docs.pivotal.io/530/install_guide/env_var_ref.html
+https://gpdb.docs.pivotal.io/530/ref_guide/extensions/pl_r.html
+
 docker run -i -d -p 5432:5433 <image>
-docker start musing_meitner
-docker exec -i -t musing_meitner /bin/bash
+docker start sharp_fermat
+docker exec -i -t sharp_fermat /bin/bash
+docker cp plr-ossv8.3.0.15_pv2.1_gpdb4.3orca-rhel5-x86_64.gppkg sharp_fermat:/home/gpadmin
+    su - gpadmin
+    PATH=$PATH:/usr/local/greenplum-db/bin
+    . /usr/local/greenplum-db/greenplum_path.sh
+    set env GPHOME="/usr/local/greenplum-db/"
+    set env MASTER_DATA_DIRECTORY="/gpdata/master/gpseg-1"
+    set env PGPASSWORD="pivotal"
+    gppkg -i /home/gpadmin/plr-ossv8.3.0.15_pv2.1_gpdb4.3orca-rhel5-x86_64.gppkg
+    gpstop -a -r
+    createlang plr -d gpadmin
+    gpstart
+
+
+
+CREATE OR REPLACE FUNCTION public.TEST(float) RETURNS float AS 'return(arg1 + 1)' LANGUAGE 'plr';
+SELECT public.TEST(1);

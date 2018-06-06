@@ -61,6 +61,7 @@ lm_sgd <- function(iter, rate) {
     }
     print(theta)
 }
+model0 = lm_sgd(100, 0.1)
 
 
 keypair = PaillierKeyPair$new(modulusBits = 1024)
@@ -167,12 +168,13 @@ addenc = function(x, y) {
             if (ydiff > 0) {
                 y[i] = pubkey$mult(y[i], 10 ^ (ydiff))
                 y[i + 1] = pubkey$mult(y[i + 1], 10 ^ (ydiff))
-            }}
+            }
+        }
         res[i] = pubkey$add(x[i], y[i])
         # print(privkey$decrypt(c(x[i], y[i], res[i])))
         res[i + 1] = pubkey$add(x[i + 1], y[i + 1])
     }
-    res}
+res}
 ####################################################################
 ########
 # We next define subtraction of two encrypted numbers: (enc(a1),enc(b1), c1) and (enc(a2), enc(b2), c2).
@@ -254,7 +256,7 @@ re2pred <- function(z) {
 }
 cadj = c(0, 0, 0, 0) # a variable we want to print to keep track of progress
 #############
-# This is RE1's model update function and implements the gradientdescent update formula.
+# This is RE1's mmodel update function and implements the gradientdescent update formula.
 # It takes the gradient (unencrypted) from the master and then adjust its own theta.
 # The whole computation is assumed to take place within RE1 and no encryption is required.
 # We can encrypt the whole thing if we want to.
@@ -295,11 +297,10 @@ pp_lm_sgd <- function(iter, rate) {
         px = re2pred(p1)   # full prediction
         grad = master_grad(px)  # compute gradient based on difference between true values and predicted values
         re1update(grad)    # update models independently
-
         re2update(grad)
         print(cadj)
     }
     print(c(theta1, theta2, theta3, theta4))
 }
-model0 = lm_sgd(100, 0.1)
+
 model1 = pp_lm_sgd(100, 0.1)
