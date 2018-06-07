@@ -1,39 +1,32 @@
+drop table if exists grouped;
 DROP TABLE IF EXISTS products;
-drop table if exists a;
-CREATE TABLE products (
- product_id BIGSERIAL,
- product_name VARCHAR (255) NOT NULL
-);
-
-INSERT INTO products(product_name) VALUES ('a');
-INSERT INTO products(product_name) VALUES ('b');
-INSERT INTO products(product_name) VALUES ('c');
-INSERT INTO products(product_name) VALUES ('d');
-INSERT INTO products(product_name) VALUES ('e');
-INSERT INTO products(product_name) VALUES ('f');
-INSERT INTO products(product_name) VALUES ('g');
-INSERT INTO products(product_name) VALUES ('h');
-CREATE TABLE a as select product_id, product_id%5 as group_id, product_name from products;
-select * from  a;
-
-
-select product_id,product_name, group_id, ROW_NUMBER() OVER (PARTITION BY group_id) from a;
-
-
 -- create test table
+drop table if exists test_data;
 CREATE TABLE test_data (
+row_id bigserial,
 fyear integer,
 firm float8,
 eps float8
 );
 -- insert randomly pertubated data for test
-INSERT INTO test_data
+INSERT INTO test_data(fyear,firm,eps)
 SELECT
-    (b.f + 1) % 10 + 2000 AS fyear,
-    floor((b.f+1)/10) + 50 AS firm,
-    f::float8/100 + random()/10 AS eps
+    (b.f + 1) % 10 + 2000 AS a,
+    floor((b.f+1)/10) + 50 AS b,
+    f::float8/100 + random()/10 AS c
 FROM
-    generate_series(-500,499,1) b(f);
+    generate_series(-5000000,5000000,1) b(f);
+
+CREATE TABLE grouped as select row_id, row_id%1000 as group_id,fyear,firm,eps from test_data;
+CREATE TABLE grouped_1 as select group_id, array_agg(grouped.firm) from grouped group by group_id ;
+SELECT sum(2) from grouped_1 limit 10
+
+
+select group_id, array_agg(grouped.firm) from grouped group by group_id limit 100;
+
+
+
+
 
 CREATE OR REPLACE
 FUNCTION r_regr_slope(float8, float8)
@@ -53,4 +46,3 @@ lag(eps) OVER (ORDER BY firm, fyear) AS lag_eps
 FROM test_data) AS a
 WHERE eps IS NOT NULL
 WINDOW w AS (ORDER BY firm, fyear ROWS 8 PRECEDING);
-In
