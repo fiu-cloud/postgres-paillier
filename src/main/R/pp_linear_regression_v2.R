@@ -22,14 +22,16 @@ rm(list=ls())
 library(homomorpheR)
 library(tictoc)
 
-############################
-## SCENARIO   PARAMETERS  ##
-############################
+#############################
+## EXPERIMENT   PARAMETERS ##
+#############################
+#these parameters are constant and each party would have access to most of them
 config <- new.env()
-config$n = 50
-config$iterations = 100
-config$alpha = 0.1
+config$n = 50 #size of data
+config$iterations = 100 #iterations
+config$alpha = 0.1 #learning rate
 config$home = paste(Sys.getenv("HOME"),"/paillier_shared",sep="")
+#for this experiment, files will be save in your home directory under paillier_shared
 
 
 
@@ -185,16 +187,15 @@ readShared = function(orgName,workspace,operation,iteration) {
 }
 
 
-#####################
-## INITIALISE DATA ##
-#####################
+#############################
+## INITIALISE PRIVATE DATA ##
+#############################
 fiu <- new.env()
 re_1 <- new.env()
 re_2 <- new.env()
 tempData <- new.env()
 
-fiu.alpha = 0
-
+#create synthetic data
 tempData$x1 = 11 : (10 + config$n)
 tempData$x1 = 11 : (10 + config$n)
 tempData$x2 = runif(config$n, 5, 95)
@@ -213,6 +214,10 @@ fiu$labels = fiu$b[1] +
     scale(tempData$eps) #target variable
 
 #Initialise data for REs
+re_1$x1Raw = tempData$x[, 1]
+re_1$x2Raw = tempData$x[, 2]
+re_1$x3Raw = tempData$x[, 3]
+re_2$x4Raw = tempData$x[, 4]
 re_1$x1 = encrypt(tempData$x[, 1])
 re_1$x2 = encrypt(tempData$x[, 2])
 re_1$x3 = encrypt(tempData$x[, 3])
@@ -227,33 +232,55 @@ rm(tempData)
 
 
 #####################
-## RUN EXERPIMENT  ##
+## RUN EXERIMENT  ##
 #####################
 
 re1pred <- function(iteration) {
     re1Prediction = (addenc(smultenc(re_1$x1, re_1$theta1),
     addenc(smultenc(re_1$x2, re_1$theta2), smultenc(re_1$x3, re_1$theta3))))
-    tic("SAVE")
     writeShared(re1Prediction,'re1',config$home,'prediction',iteration)
-    toc()
 }
 
 re2pred <- function(iteration) {
-    tic("LOAD")
     partialFromRe1 = readShared('re1',config$home,'prediction',iteration)
-    toc()
     re2Prediction = (addenc(partialFromRe1, smultenc(re_2$x4, re_2$theta4)))
     writeShared(re2Prediction,'re2',config$home,'prediction',iteration)
 }
 
+fiuCalcGrad <- function(iteration){
+    predictionFromRe2 = readShared('re2',config$home,'prediction',iteration)
+    xd = decrypt(predictionFromRe2)
+    gradient = xd - fiu$labels
+    writeShared(gradient,'fiu',config$home,'gradient',iteration)
+}
 
-run <- function(iter,rate){
+re1Update <- function(iteration){
+    z = readShared('fiu',config$home,'gradient',iteration)
+    alpha = config$alpha
+    n = config$n
+    re_1$theta1 = re_1$theta1 - (alpha / n) * sum(z * re_1$x1Raw)
+    re_1$theta2 = re_1$theta2 - (alpha / n) * sum(z * re_1$x2Raw)
+    re_1$theta3 = re_1$theta3 - (alpha / n) * sum(z * re_1$x3Raw)
+}
+
+re2Update <- function(iteration){
+    z = readShared('fiu',config$home,'gradient',iteration)
+    re_2$theta4 = re_2$theta4 - (config$alpha / config$n) * sum(z * re_2$x4Raw)
+}
+
+
+run <- function(iter){
     for (i in 1 : iter) {
         re1pred(i)
         re2pred(i)
+        fiuCalcGrad(i)
+        re1Update(i)
+        re2Update(i)
     }
+    print(paste("ACTUAL ",c(re_1$theta1, re_1$theta2, re_1$theta3, re_2$theta4)))
+    print(paste("EXPECTED ",fiu$b))
 }
 
-run(config$iterations,config$alpha)
+run(config$iterations)
 
 
