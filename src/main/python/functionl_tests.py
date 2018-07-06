@@ -27,15 +27,19 @@ def formatPad(inNumber):
 def encDecTest():
     print()
 
-    print("Encrypt-Decrypt TEST")
+    print("Encrypt-Decrypt test")
+    print("                  a                                        dec(enc(a))                a-dec(enc(a))")
+    print("---------------------------------------------------------------------------------------------------")
     for x in tests:
         ex = prikey.decrypt(pubkey.encrypt(x))
-        print(formatPad(x) + ", "+formatPad(ex) +", "+ formatDiff(x - ex))
+        print(formatPad(x) + "   "+formatPad(ex) +"    "+ formatDiff(x - ex))
     return
 
 def additionTest():
     print()
-    print("Addition TEST")
+    print("Addition test")
+    print("                  a                                      b                       (a+b)-dec(enc(a)+enc(b))              a+b                                dec(enc(a)+enc(b)")
+    print("-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
     for x in combos:
         added = x[0]+x[1]
         e_x0 = pubkey.encrypt(x[0])
@@ -43,12 +47,15 @@ def additionTest():
         e_added = e_x0 + e_x1
         d_added = prikey.decrypt(e_added)
         diff = added - d_added
-        print(formatPad(x[0]) + ", "+formatPad(x[1])+", "+formatDiff(diff)+", "+ formatPad(added)+ ","+formatPad(d_added))
+        print(formatPad(x[0]) + "  "+formatPad(x[1])+"     "+formatDiff(diff)+"     "+ formatPad(added)+ "  "+formatPad(d_added))
     return
 
 def multiplicationTest1():
     print()
-    print("Multiplication TEST 1")
+    print("Multiplication test A")
+    print("                  a                                      b                       (a*b)-dec(enc(a)*b)              a*b                                dec(enc(a)*b)")
+    print("-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+
     for x in combos:
         multiplied = x[0]*x[1]
         e_x0 = pubkey.encrypt(x[0])
@@ -61,7 +68,9 @@ def multiplicationTest1():
 
 def multiplicationTest2():
     print()
-    print("Multiplication TEST 2")
+    print("Multiplication test B")
+    print("                  a                                      b                       (a*b)-dec(a*enc(b))              a*b                                dec(a*enc(b))")
+    print("-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
     for x in combos:
         multiplied = x[0]*x[1]
         e_x0 = pubkey.encrypt(x[0])
