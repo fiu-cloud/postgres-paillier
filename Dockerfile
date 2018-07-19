@@ -16,6 +16,7 @@ RUN apt-get -y install make=4.1-9.1
 RUN apt-get -y install libpq-dev=10.4-2.pgdg90+1
 RUN apt-get -y install postgresql-server-dev-all=191.pgdg90+1
 RUN apt-get -y install postgresql-common=191.pgdg90+1
+RUN apt-get -y install postgresql-plpython3-10=10.4-2.pgdg90+1
 
 #Setup R libraries and functions
 RUN Rscript --verbose setup_library.R
