@@ -27,7 +27,7 @@
         res = rep(zero, length(y))
         for (i in 1:length(y)) {
             if (i %% 3 == 0) { res[i] = y[i] }
-            else { res[i] = pubkey$encrypt(as.character(y[i])) }
+            else { res[i] = pubkey$encrypt((y[i])) }
         }
         res
     }
